@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>Cep 2FA</title>
+    <link rel="stylesheet" href="popup.css" />
+    <script type="module" src="src/popup.js"></script>
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <a class="brand" href="popup.html" aria-label="Cep 2FA home"
+          ><img src="assets/icon-48.png" width="36" height="36" alt="" /><span
+            >Cep<span class="brand-light">2FA</span></span
+          ></a
+        >
+        <span class="local-badge"
+          ><span class="status-dot"></span> Only on this device</span
+        >
+      </header>
+      <main>
+        <div class="heading-row">
+          <div>
+            <p class="eyebrow">ALWAYS WITHIN REACH</p>
+            <h1>Your verification codes<span class="heading-dot">.</span></h1>
+          </div>
+          <span id="account-count" class="count">0</span>
+        </div>
+        <div class="toolbar">
+          <label class="search"
+            ><svg aria-hidden="true" viewBox="0 0 24 24">
+              <circle cx="10.5" cy="10.5" r="6.5" />
+              <path d="m16 16 4.5 4.5" /></svg
+            ><input
+              id="search"
+              type="search"
+              placeholder="Search accounts…"
+              aria-label="Search accounts"
+              autocomplete="off" /></label
+          ><button id="add-account" class="button primary" type="button">
+            <span aria-hidden="true">+</span> Add account
+          </button>
+        </div>
+        <div class="list-caption">
+          <span>YOUR ACCOUNTS</span><span>CLICK A CODE TO COPY</span>
+        </div>
+        <div
+          id="accounts"
+          class="accounts"
+          aria-label="Saved accounts"
+          aria-busy="true"
+        ></div>
+        <section id="empty-state" class="empty-state" hidden>
+          <div class="empty-icon">
+            <svg aria-hidden="true" viewBox="0 0 48 48">
+              <rect x="11" y="20" width="26" height="21" rx="6" />
+              <path d="M17 20v-7a7 7 0 0 1 14 0v7" />
+              <circle cx="24" cy="30" r="2" />
+              <path d="M24 32v3" /></svg
+            ><span>+</span>
+          </div>
+          <h2>Add your first account</h2>
+          <p>
+            Save your 2FA secret once.<br />Your current code is always right
+            here.
+          </p>
+          <button id="add-first" class="button primary" type="button">
+            + Add my first account</button
+          ><span class="empty-note"
+            >Works with the same secrets you use on 2fa.live.</span
+          >
+        </section>
+        <section id="no-results" class="no-results" hidden>
+          <h2>No accounts found</h2>
+          <p>Try searching for a different name.</p>
+        </section>
+        <div id="storage-error" class="error-banner" role="alert" hidden></div>
+      </main>
+      <footer>
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <path d="m12 3 8 3v5c0 5-8 10-8 10S4 16 4 11V6z" />
+          <path d="m8.5 11.5 2.5 2.5 4.5-5" /></svg
+        ><span>Codes generated on your device. No internet needed.</span
+        ><span class="footer-dot"></span>
+      </footer>
+    </div>
+    <dialog id="account-dialog" aria-labelledby="dialog-title">
+      <form id="account-form" novalidate>
+        <div class="dialog-header">
+          <div>
+            <p class="eyebrow">CEP 2FA</p>
+            <h2 id="dialog-title">Add a new account</h2>
+          </div>
+          <button
+            id="close-dialog"
+            class="icon-button close"
+            type="button"
+            aria-label="Close dialog"
+          >
+            ×
+          </button>
+        </div>
+        <p class="dialog-description">
+          Give your account a name and paste its 2FA secret.
+        </p>
+        <label class="field-label" for="account-name">Account name</label
+        ><input
+          class="field"
+          id="account-name"
+          maxlength="100"
+          placeholder="e.g. Google · Personal"
+          autocomplete="off"
+        />
+        <label class="field-label" for="account-secret"
+          >2FA secret <span>or otpauth link</span></label
+        >
+        <div class="secret-field">
+          <input
+            class="field"
+            id="account-secret"
+            type="password"
+            placeholder="Secret containing A–Z and 2–7"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            maxlength="4096"
+            required
+            aria-describedby="secret-help form-error"
+          /><button
+            id="toggle-secret"
+            class="secret-toggle"
+            type="button"
+            aria-label="Show secret"
+            aria-pressed="false"
+          >
+            Show
+          </button>
+        </div>
+        <p id="secret-help" class="field-hint">
+          Spaces in your secret are fine. Standard codes refresh every 30
+          seconds.
+        </p>
+        <div class="privacy-note">
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="m12 3 8 3v5c0 5-8 10-8 10S4 16 4 11V6z" />
+            <path d="m8.5 11.5 2.5 2.5 4.5-5" /></svg
+          ><span
+            >Your secret stays in this browser and is never sent to a
+            server.</span
+          >
+        </div>
+        <p id="form-error" class="form-error" role="alert" hidden></p>
+        <div class="dialog-actions">
+          <button id="cancel-dialog" class="button secondary" type="button">
+            Cancel</button
+          ><button id="save-account" class="button primary" type="submit">
+            Save account
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="delete-dialog" aria-labelledby="delete-title">
+      <form id="delete-form">
+        <h2 id="delete-title">Delete account?</h2>
+        <p id="delete-description" class="dialog-description"></p>
+        <p class="field-hint">
+          You will need the 2FA secret to add this account again.
+        </p>
+        <p id="delete-error" class="form-error" role="alert" hidden></p>
+        <div class="dialog-actions">
+          <button id="cancel-delete" class="button secondary" type="button">
+            Cancel</button
+          ><button id="confirm-delete" class="button danger" type="submit">
+            Delete account
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  </body>
+</html>
